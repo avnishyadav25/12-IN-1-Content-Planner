@@ -1,0 +1,583 @@
+{
+  "name": "12 in 1 Content Planner (Complete)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        3056,
+        416
+      ],
+      "id": "ec72a191-3dd6-4f5d-910e-071d3e6a6483",
+      "name": "When clicking \u2018Execute workflow\u2019"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1-twR0avgmSgks2GgxjxX9sQ-tanijHv4Kmt3XNuAzA8",
+          "mode": "list",
+          "cachedResultName": "12-in-1-Content-Planner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-twR0avgmSgks2GgxjxX9sQ-tanijHv4Kmt3XNuAzA8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Content Planner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-twR0avgmSgks2GgxjxX9sQ-tanijHv4Kmt3XNuAzA8/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status",
+              "lookupValue": "READY"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3312,
+        608
+      ],
+      "id": "966980a8-23d9-4c55-9e42-8976b3d08188",
+      "name": "Get row(s) in sheet"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ `=You are an expert automation content creator. Generate a complete \"12 in 1 Content Planner\" content pack for ONE topic.\n\nIMPORTANT OUTPUT RULES (MUST FOLLOW):\n1) Output ONLY valid JSON. No markdown. No commentary. No trailing commas.\n2) Use double quotes for all strings. Use only: string/number/boolean/array/object.\n3) Language:\n   - Hinglish for Reel voiceover + IG captions (natural, not cringe).\n   - Simple English for Carousel slides (clean, punchy).\n   - LinkedIn + Blog can be professional English (calm, engineering-led).\n4) Avoid false claims. If something is uncertain, phrase it as a suggestion.\n5) Carousel: exactly 10 slides. Each slide body must fit on screen (max 180 characters).\n6) Instagram Reel: 35\u201345 seconds, 8\u201312 shots, timestamps + on-screen captions. First 2 shots must show payoff/demo quickly. Include 1 shot for error handling/retry/approval. End with CTA keyword.\n7) YouTube Long: provide full voiceover script (6\u20139 minutes) + title + description + chapters + tags + pinned comment + thumbnail text ideas.\n8) YouTube Short: provide 45\u201360 sec script (hook-heavy) + on-screen text beats + description + hashtags.\n9) Provide a \"validation\" object with simple checks so n8n can fail fast.\n\nINPUT (from Google Sheet row):\n{\n  \"topic\": \"${$json.Title}\",\n  \"cta_keyword\": \"FLOW\",\n  \"lead_magnet\": \"12-in-1 Content Planner n8n JSON\",\n  \"brand\": {\n    \"channel_name\": \"CodeITronics / Avnish\",\n    \"promise\": \"Build once. Automate forever.\",\n    \"tone\": \"calm, confident, engineering-led; no hype\"\n  }\n}\n\nReturn this exact JSON shape (do not change keys):\n\n{\n  \"meta\": {\n    \"topic\": \"\",\n    \"content_angle\": \"\",\n    \"primary_pain\": \"\",\n    \"big_payoff\": \"\",\n    \"audience\": \"developers building automations\",\n    \"cta_keyword\": \"\",\n    \"lead_magnet\": \"\"\n  },\n\n  \"youtube\": {\n    \"long\": {\n      \"title\": \"\",\n      \"hook_1_line\": \"\",\n      \"outline_bullets\": [],\n      \"script\": \"\",\n      \"description\": \"\",\n      \"chapters\": [\n        { \"t\": \"0:00\", \"label\": \"Intro / Demo\" }\n      ],\n      \"tags\": [],\n      \"pinned_comment\": \"\",\n      \"thumbnail\": {\n        \"text_options\": [],\n        \"visual_concept\": \"\",\n        \"composition_notes\": \"\"\n      }\n    },\n    \"short\": {\n      \"title\": \"\",\n      \"script\": \"\",\n      \"on_screen_beats\": [],\n      \"description\": \"\",\n      \"hashtags\": []\n    }\n  },\n\n  \"instagram\": {\n    \"reel\": {\n      \"duration_sec\": 40,\n      \"hook_text\": \"\",\n      \"shots\": [\n        {\n          \"t_start\": \"0:00\",\n          \"t_end\": \"0:03\",\n          \"visual\": \"\",\n          \"on_screen_text\": \"\",\n          \"voiceover_hinglish\": \"\",\n          \"sfx\": \"\"\n        }\n      ],\n      \"caption_hinglish\": \"\",\n      \"hashtags\": [],\n      \"cta_line\": \"\"\n    },\n    \"post\": {\n      \"caption_hinglish\": \"\",\n      \"hashtags\": [],\n      \"cta_line\": \"\"\n    },\n    \"carousel\": {\n      \"cover\": { \"headline\": \"\", \"subheadline\": \"\", \"badge\": \"\" },\n      \"slides\": [\n        { \"slide_no\": 1, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 2, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 3, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 4, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 5, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 6, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 7, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 8, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 9, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" },\n        { \"slide_no\": 10, \"title\": \"\", \"body\": \"\", \"on_screen_caption\": \"\" }\n      ],\n      \"design\": {\n        \"format\": \"1080x1350\",\n        \"style\": \"minimal, dev aesthetic\",\n        \"colors\": {\n          \"bg\": \"#0B1220\",\n          \"text\": \"#FFFFFF\",\n          \"accent1\": \"#7C3AED\",\n          \"accent2\": \"#22C55E\",\n          \"warning\": \"#F59E0B\"\n        },\n        \"font_suggestions\": [\"Poppins\", \"Inter\"],\n        \"layout_rules\": [\n          \"Max 2 lines title\",\n          \"Body max 3 short lines\",\n          \"Use 1 highlight word per slide\",\n          \"Keep safe margins 10%\"\n        ]\n      }\n    }\n  },\n\n  \"facebook\": { \"post\": { \"text\": \"\", \"cta_line\": \"\" } },\n\n  \"threads\": { \"post\": { \"text\": \"\" } },\n\n  \"twitter\": {\n    \"post\": { \"text\": \"\" },\n    \"thread\": { \"tweets\": [] }\n  },\n\n  \"linkedin\": {\n    \"post\": { \"text\": \"\", \"cta_line\": \"\" },\n    \"article\": { \"title\": \"\", \"hook\": \"\", \"tldr\": \"\", \"body\": \"\", \"hashtags\": [] }\n  },\n\n  \"blog\": {\n    \"title\": \"\",\n    \"slug\": \"\",\n    \"tldr\": \"\",\n    \"meta_title\": \"\",\n    \"meta_description\": \"\",\n    \"html_body\": \"\",\n    \"tags\": [],\n    \"image_prompt\": \"\"\n  },\n\n  \"assets\": {\n    \"screen_recording_list\": [],\n    \"broll_ideas\": [],\n    \"thumbnail\": {\n      \"text_options\": [],\n      \"visual_concept\": \"\",\n      \"composition_notes\": \"\"\n    }\n  },\n\n  \"validation\": {\n    \"is_valid_json\": true,\n    \"carousel_slides_count\": 10,\n    \"reel_has_8_to_12_shots\": true,\n    \"safe_to_publish\": true,\n    \"warnings\": []\n  }\n}\n\nRules for generating Reel shots:\n- Provide 8\u201312 shots total.\n- First 2 shots must show payoff/demos quickly.\n- Include 1 shot for error handling/retry/approval.\n- End with CTA: comment \"FLOW\" to get \"12-in-1 Content Planner n8n JSON\".\n\nReturn ONLY the JSON.` }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        3488,
+        384
+      ],
+      "id": "d8e36a46-d644-4e96-b1da-e834e0f80eb0",
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://docs.googleapis.com/v1/documents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ { \"title\": $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.doc_title } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3920,
+        368
+      ],
+      "id": "6651b2f4-9dd7-4506-a1d8-246d1eb8654e",
+      "name": "Create Google Doc"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{$node[\"Create Google Doc\"].json.documentId}}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\nJSON.stringify({\n  \"requests\": [\n    {\n      \"insertText\": {\n        \"location\": { \"index\": 1 },\n        \"text\": $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.doc_body\n      }\n    }\n  ]\n})\n}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4096,
+        560
+      ],
+      "id": "1779107d-3e68-4806-ae5f-fd8bed41d23b",
+      "name": "Insert Content (batchUpdate)"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $node[\"Create Google Doc\"].json.documentId }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1xCIFOX2PKD9ywWNHTOnQDgO9UpQFt9At",
+          "mode": "list",
+          "cachedResultName": "N8N-Automation",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1xCIFOX2PKD9ywWNHTOnQDgO9UpQFt9At"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4256,
+        336
+      ],
+      "id": "37d9ca82-842a-4f99-a69e-634f53292014",
+      "name": "Move file"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1-twR0avgmSgks2GgxjxX9sQ-tanijHv4Kmt3XNuAzA8",
+          "mode": "list",
+          "cachedResultName": "12-in-1-Content-Planner",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-twR0avgmSgks2GgxjxX9sQ-tanijHv4Kmt3XNuAzA8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-twR0avgmSgks2GgxjxX9sQ-tanijHv4Kmt3XNuAzA8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $node[\"Get row(s) in sheet\"].json.Title }}",
+            "Status": "DONE",
+            "YouTube Long": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.youtube_long }}",
+            "Youtube Short": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.youtube_short }}",
+            "Instagram Reel": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.instagram_reel }}",
+            "Instagram Post": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.instagram_post }}",
+            "Instagram Carousel": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.instagram_carousel }}",
+            "Facebook Post": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.facebook_post }}",
+            "Thread Post": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.thread_post }}",
+            "Twitter Post": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.twitter_post }}",
+            "Twitter Thread": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.twitter_thread }}",
+            "Linkedin Post": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.linkedin_post }}",
+            "Linkedin Article": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.linkedin_article }}",
+            "Blog Post": "={{ $node[\"n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\"].json.sheet_out.blog_post }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "YouTube Long",
+              "displayName": "YouTube Long",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Youtube Short",
+              "displayName": "Youtube Short",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Instagram Reel",
+              "displayName": "Instagram Reel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Instagram Post",
+              "displayName": "Instagram Post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Instagram Carousel",
+              "displayName": "Instagram Carousel",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Facebook Post",
+              "displayName": "Facebook Post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Thread Post",
+              "displayName": "Thread Post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Twitter Post",
+              "displayName": "Twitter Post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Twitter Thread",
+              "displayName": "Twitter Thread",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Linkedin Post",
+              "displayName": "Linkedin Post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Linkedin Article",
+              "displayName": "Linkedin Article",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Blog Post",
+              "displayName": "Blog Post",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4464,
+        560
+      ],
+      "id": "98ebb265-9a44-4aee-a097-8623a2499467",
+      "name": "Update row in sheet"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * n8n Code Node: Parse + Flatten Multi-Platform JSON Payload\n *\n * Goal:\n * - Take the LLM JSON payload (already parsed OR raw text) and split/flatten into parts:\n *   YouTube Long/Short, Facebook Post, Instagram Reel/Post/Carousel,\n *   LinkedIn Post/Article, Blog Post, Twitter Post/Thread, Threads Post\n *\n * Outputs:\n * 1) One \"master\" item with flattened fields you can map to Google Sheets columns\n * 2) A \"docs\" array you can Split In Batches to create Google Docs in Drive\n *\n * How to use:\n * - Place after your LLM node (or after your JSON-validate node)\n * - If you already output payload at $json.payload, it will use that.\n * - If your LLM node output is raw text, it will attempt to extract JSON and parse it.\n */\n\nfunction pickFirstString(obj) {\n  if (obj == null) return null;\n  if (typeof obj === \"string\") return obj;\n\n  // Gemini\n  try {\n    const parts = obj?.candidates?.[0]?.content?.parts;\n    if (Array.isArray(parts)) {\n      const textPart = parts.find(p => typeof p?.text === \"string\");\n      if (textPart?.text) return textPart.text;\n    }\n  } catch (e) {}\n\n  // OpenAI-style\n  try {\n    const c = obj?.choices?.[0];\n    if (typeof c?.message?.content === \"string\") return c.message.content;\n    if (typeof c?.text === \"string\") return c.text;\n  } catch (e) {}\n\n  // Common\n  for (const k of [\"text\", \"content\", \"body\", \"data\", \"response\", \"result\", \"message\", \"output\"]) {\n    if (typeof obj?.[k] === \"string\") return obj[k];\n    if (obj?.[k] && typeof obj[k] === \"object\") {\n      const nested = pickFirstString(obj[k]);\n      if (nested) return nested;\n    }\n  }\n\n  return null;\n}\n\nfunction stripCodeFences(s) {\n  return String(s || \"\")\n    .replace(/```(?:json)?\\s*/gi, \"\")\n    .replace(/```/g, \"\")\n    .trim();\n}\n\nfunction extractJsonObject(raw) {\n  const s = stripCodeFences(raw);\n  const start = s.indexOf(\"{\");\n  const end = s.lastIndexOf(\"}\");\n  if (start === -1 || end === -1 || end <= start) return null;\n  return s.slice(start, end + 1);\n}\n\nfunction repairJson(s) {\n  // minimal repairs\n  return String(s || \"\")\n    .replace(/[\u201c\u201d]/g, '\"')\n    .replace(/[\u2018\u2019]/g, \"'\")\n    .replace(/,\\s*([}\\]])/g, \"$1\");\n}\n\nfunction asString(x) {\n  return typeof x === \"string\" ? x : (x == null ? \"\" : String(x));\n}\n\nfunction joinTags(arr) {\n  if (!Array.isArray(arr)) return \"\";\n  return arr.map(t => asString(t).trim()).filter(Boolean).join(\", \");\n}\n\nfunction joinHashtags(arr) {\n  if (!Array.isArray(arr)) return \"\";\n  return arr\n    .map(t => asString(t).trim())\n    .filter(Boolean)\n    .map(t => (t.startsWith(\"#\") ? t : `#${t}`))\n    .join(\" \");\n}\n\nfunction mdBullet(arr) {\n  if (!Array.isArray(arr) || !arr.length) return \"\";\n  return arr.map(x => `- ${asString(x)}`).join(\"\\n\");\n}\n\nfunction renderCarouselText(carousel) {\n  const cover = carousel?.cover || {};\n  const slides = Array.isArray(carousel?.slides) ? carousel.slides : [];\n  const design = carousel?.design || {};\n  const slideLines = slides.map(s => {\n    const no = s.slide_no ?? \"\";\n    const title = asString(s.title);\n    const body = asString(s.body);\n    const osc = asString(s.on_screen_caption);\n    return [\n      `Slide ${no}: ${title}`.trim(),\n      body,\n      osc ? `On-screen: ${osc}` : \"\",\n      \"\"\n    ].filter(Boolean).join(\"\\n\");\n  }).join(\"\\n\");\n\n  return [\n    `Cover Headline: ${asString(cover.headline)}`,\n    `Cover Subheadline: ${asString(cover.subheadline)}`,\n    `Cover Badge: ${asString(cover.badge)}`,\n    \"\",\n    \"Slides:\",\n    slideLines,\n    \"\",\n    \"Design:\",\n    `Format: ${asString(design.format)}`,\n    `Style: ${asString(design.style)}`,\n    `Colors: ${design.colors ? JSON.stringify(design.colors) : \"\"}`,\n    `Fonts: ${Array.isArray(design.font_suggestions) ? design.font_suggestions.join(\", \") : \"\"}`,\n    `Layout Rules: ${Array.isArray(design.layout_rules) ? design.layout_rules.join(\" | \") : \"\"}`,\n  ].join(\"\\n\");\n}\n\nfunction renderReelShots(shots) {\n  if (!Array.isArray(shots) || !shots.length) return \"\";\n  return shots.map((s, i) => {\n    return [\n      `SHOT ${i + 1} (${asString(s.t_start)} - ${asString(s.t_end)})`,\n      `Visual: ${asString(s.visual)}`,\n      `On-screen: ${asString(s.on_screen_text)}`,\n      `VO: ${asString(s.voiceover_hinglish || s.voiceover)}`,\n      s.sfx ? `SFX: ${asString(s.sfx)}` : \"\",\n      \"\"\n    ].filter(Boolean).join(\"\\n\");\n  }).join(\"\\n\");\n}\n\nfunction renderYTChapters(chapters) {\n  if (!Array.isArray(chapters) || !chapters.length) return \"\";\n  return chapters.map(c => `${asString(c.t)} \u2014 ${asString(c.label)}`).join(\"\\n\");\n}\n\nfunction htmlOrText(x) {\n  // keep html as-is; otherwise string\n  return asString(x);\n}\n\n// -------------------- MAIN: get payload --------------------\nconst inputItem = $input.first().json.content.parts[0].text\nconst extracted = extractJsonObject(inputItem);\nlet payload = JSON.parse(extracted);;\n\n// -------------------- Extract Parts --------------------\nconst meta = payload.meta || {};\nconst youtubeLong = payload.youtube?.long || {};\nconst youtubeShort = payload.youtube?.short || {};\nconst instagramReel = payload.instagram?.reel || {};\nconst instagramPost = payload.instagram?.post || {};\nconst instagramCarousel = payload.instagram?.carousel || {};\nconst facebookPost = payload.facebook?.post || {};\nconst linkedinPost = payload.linkedin?.post || {};\nconst linkedinArticle = payload.linkedin?.article || {};\nconst blog = payload.blog || {};\nconst twitterPost = payload.twitter?.post || {};\nconst twitterThread = payload.twitter?.thread || {};\nconst threadsPost = payload.threads?.post || {};\nconst assets = payload.assets || {};\nconst validation = payload.validation || {};\n\n// -------------------- Flatten for Google Sheets --------------------\n// You can rename these keys to match your exact sheet headers.\nconst sheet = {\n  topic: asString(meta.topic),\n  content_angle: asString(meta.content_angle),\n  primary_pain: asString(meta.primary_pain),\n  big_payoff: asString(meta.big_payoff),\n  cta_keyword: asString(meta.cta_keyword),\n  lead_magnet: asString(meta.lead_magnet),\n\n  yt_long_title: asString(youtubeLong.title),\n  yt_long_hook: asString(youtubeLong.hook_1_line),\n  yt_long_outline: mdBullet(youtubeLong.outline_bullets),\n  yt_long_description: asString(youtubeLong.description),\n  yt_long_chapters: renderYTChapters(youtubeLong.chapters),\n  yt_long_tags: joinTags(youtubeLong.tags),\n  yt_long_pinned_comment: asString(youtubeLong.pinned_comment),\n  yt_thumb_text_options: Array.isArray(youtubeLong.thumbnail?.text_options) ? youtubeLong.thumbnail.text_options.join(\" | \") : \"\",\n  yt_thumb_concept: asString(youtubeLong.thumbnail?.visual_concept),\n  yt_thumb_notes: asString(youtubeLong.thumbnail?.composition_notes),\n\n  yt_short_title: asString(youtubeShort.title),\n  yt_short_on_screen: asString(youtubeShort.on_screen_text),\n  yt_short_voiceover: asString(youtubeShort.voiceover),\n  yt_short_shots: renderReelShots(youtubeShort.shots),\n  yt_short_description: asString(youtubeShort.description),\n  yt_short_hashtags: joinHashtags(youtubeShort.hashtags),\n\n  ig_reel_hook: asString(instagramReel.hook_text),\n  ig_reel_caption: asString(instagramReel.caption_hinglish),\n  ig_reel_hashtags: joinHashtags(instagramReel.hashtags),\n  ig_reel_cta: asString(instagramReel.cta_line),\n  ig_reel_shots: renderReelShots(instagramReel.shots),\n\n  ig_post_caption: asString(instagramPost.caption_hinglish),\n  ig_post_hashtags: joinHashtags(instagramPost.hashtags),\n  ig_post_cta: asString(instagramPost.cta_line),\n\n  ig_carousel_cover_headline: asString(instagramCarousel.cover?.headline),\n  ig_carousel_cover_subheadline: asString(instagramCarousel.cover?.subheadline),\n  ig_carousel_cover_badge: asString(instagramCarousel.cover?.badge),\n  ig_carousel_slides_text: renderCarouselText(instagramCarousel),\n\n  fb_post_text: asString(facebookPost.text),\n  fb_post_cta: asString(facebookPost.cta_line),\n  fb_post_hashtags: joinHashtags(facebookPost.hashtags),\n\n  li_post_text: asString(linkedinPost.text),\n  li_post_cta: asString(linkedinPost.cta_line),\n  li_post_hashtags: joinHashtags(linkedinPost.hashtags),\n\n  li_article_title: asString(linkedinArticle.title),\n  li_article_hook: asString(linkedinArticle.hook),\n  li_article_tldr: asString(linkedinArticle.tldr),\n  li_article_sections_json: JSON.stringify(linkedinArticle.sections || []),\n  li_article_cta: asString(linkedinArticle.cta),\n\n  blog_title: asString(blog.title),\n  blog_slug: asString(blog.slug),\n  blog_tldr: asString(blog.tldr),\n  blog_tags: joinTags(blog.tags),\n  blog_html: htmlOrText(blog.html_body),\n  blog_meta_title: asString(blog.seo?.meta_title),\n  blog_meta_description: asString(blog.seo?.meta_description),\n  blog_keywords: Array.isArray(blog.seo?.keywords) ? blog.seo.keywords.join(\", \") : \"\",\n  blog_image_prompt: asString(blog.image_prompt),\n\n  x_post_text: asString(twitterPost.text),\n  x_thread_hook: asString(twitterThread.hook_tweet),\n  x_thread_tweets_json: JSON.stringify(twitterThread.tweets || []),\n\n  threads_post_text: asString(threadsPost.text),\n\n  assets_screen_recording_list: JSON.stringify(assets.screen_recording_list || []),\n  assets_broll_ideas: JSON.stringify(assets.broll_ideas || []),\n\n  validation_json: JSON.stringify(validation),\n};\n\n// -------------------- Build Google Docs \u201cjobs\u201d --------------------\n// You can create one doc per part OR one master doc.\n// Here we output one doc per part (recommended), plus a master doc.\nconst topicSafe = safeFile(meta.topic || \"Automation Content\");\nconst dayLabel = asString(meta.date_label || \"\");\nconst titlePrefix = safeFile(`${dayLabel ? dayLabel + \" - \" : \"\"}${topicSafe}`);\n\nfunction safeFile(name) {\n  return String(name || \"Untitled\")\n    .replace(/[\\/\\\\?%*:|\"<>]/g, \"-\")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfunction buildDoc(type, title, body) {\n  return {\n    doc_type: type,\n    title: safeFile(title),\n    body: asString(body),\n  };\n}\n\n// -------------------- Build ONE Master Google Doc --------------------\nfunction joinLines(arr) {\n  if (!Array.isArray(arr)) return \"\";\n  return arr.map(x => String(x ?? \"\")).filter(Boolean).join(\"\\n\");\n}\n\nfunction joinTweetThread(threadObj) {\n  const tweets = Array.isArray(threadObj?.tweets) ? threadObj.tweets : [];\n  if (tweets.length) return tweets.map((t, i) => `${i+1}. ${String(t ?? \"\").trim()}`).join(\"\\n\\n\");\n  // fallback (some models may return \"text\")\n  return asString(threadObj?.text, \"\");\n}\n\nfunction renderCarouselText(carousel) {\n  const c = carousel || {};\n  const cover = c.cover || {};\n  const slides = Array.isArray(c.slides) ? c.slides : [];\n  const lines = [];\n  lines.push(`COVER: ${asString(cover.headline)} | ${asString(cover.subheadline)} | ${asString(cover.badge)}`);\n  slides.forEach(s => {\n    lines.push(`Slide ${s.slide_no}: ${asString(s.title)} \u2014 ${asString(s.body)}`);\n  });\n  return lines.join(\"\\n\");\n}\n\nfunction renderReelShots(shots) {\n  if (!Array.isArray(shots)) return \"\";\n  return shots.map((s, i) => {\n    return [\n      `SHOT ${i+1} (${asString(s.t_start)}-${asString(s.t_end)})`,\n      `Visual: ${asString(s.visual)}`,\n      `On-screen: ${asString(s.on_screen_text)}`,\n      `VO: ${asString(s.voiceover_hinglish)}`,\n      `SFX: ${asString(s.sfx)}`,\n    ].join(\"\\n\");\n  }).join(\"\\n\\n\");\n}\n\n// Build master doc body (single file)\nconst titlePrefixDoc = safeFile(`${asString(meta.topic)}`) || \"Content Pack\";\n\nconst masterBodyParts = [\n  `DAY / TOPIC: ${asString(meta.topic)}`,\n  `ANGLE: ${asString(meta.content_angle)}`,\n  `PAIN: ${asString(meta.primary_pain)}`,\n  `PAYOFF: ${asString(meta.big_payoff)}`,\n  `CTA: Comment \"${asString(meta.cta_keyword)}\" to get \"${asString(meta.lead_magnet)}\"`,\n  \"\",\n  \"====================\",\n  \"YOUTUBE LONG\",\n  \"====================\",\n  `Title: ${asString(youtubeLong.title)}`,\n  `Hook: ${asString(youtubeLong.hook_1_line)}`,\n  \"\",\n  \"Outline:\",\n  joinLines(youtubeLong.outline_bullets),\n  \"\",\n  \"Script:\",\n  asString(youtubeLong.script),\n  \"\",\n  \"Description:\",\n  asString(youtubeLong.description),\n  \"\",\n  \"Chapters:\",\n  Array.isArray(youtubeLong.chapters) ? youtubeLong.chapters.map(c => `${asString(c.t)} - ${asString(c.label)}`).join(\"\\n\") : \"\",\n  \"\",\n  \"Tags:\",\n  Array.isArray(youtubeLong.tags) ? youtubeLong.tags.join(\", \") : \"\",\n  \"\",\n  \"Pinned Comment:\",\n  asString(youtubeLong.pinned_comment),\n  \"\",\n  \"Thumbnail:\",\n  `Text Options: ${Array.isArray(youtubeLong.thumbnail?.text_options) ? youtubeLong.thumbnail.text_options.join(\" | \") : \"\"}`,\n  `Concept: ${asString(youtubeLong.thumbnail?.visual_concept)}`,\n  `Notes: ${asString(youtubeLong.thumbnail?.composition_notes)}`,\n  \"\",\n  \"====================\",\n  \"YOUTUBE SHORT\",\n  \"====================\",\n  `Title: ${asString(youtubeShort.title)}`,\n  \"\",\n  \"Script:\",\n  asString(youtubeShort.script),\n  \"\",\n  \"On-screen beats:\",\n  Array.isArray(youtubeShort.on_screen_beats) ? youtubeShort.on_screen_beats.join(\" | \") : \"\",\n  \"\",\n  \"Description:\",\n  asString(youtubeShort.description),\n  \"\",\n  \"Hashtags:\",\n  Array.isArray(youtubeShort.hashtags) ? youtubeShort.hashtags.join(\" \") : \"\",\n  \"\",\n  \"====================\",\n  \"INSTAGRAM REEL\",\n  \"====================\",\n  `Hook: ${asString(instagramReel.hook_text)}`,\n  `Duration: ${instagramReel.duration_sec} sec`,\n  \"\",\n  \"Shots:\",\n  renderReelShots(instagramReel.shots),\n  \"\",\n  \"Caption (Hinglish):\",\n  asString(instagramReel.caption_hinglish),\n  \"\",\n  \"Hashtags:\",\n  Array.isArray(instagramReel.hashtags) ? instagramReel.hashtags.join(\" \") : \"\",\n  \"\",\n  \"CTA:\",\n  asString(instagramReel.cta_line),\n  \"\",\n  \"====================\",\n  \"INSTAGRAM POST\",\n  \"====================\",\n  asString(instagramPost.caption_hinglish),\n  \"\",\n  \"Hashtags:\",\n  Array.isArray(instagramPost.hashtags) ? instagramPost.hashtags.join(\" \") : \"\",\n  \"\",\n  \"CTA:\",\n  asString(instagramPost.cta_line),\n  \"\",\n  \"====================\",\n  \"INSTAGRAM CAROUSEL\",\n  \"====================\",\n  renderCarouselText(instagramCarousel),\n  \"\",\n  \"====================\",\n  \"FACEBOOK POST\",\n  \"====================\",\n  asString(facebookPost.text),\n  \"\",\n  \"CTA:\",\n  asString(facebookPost.cta_line),\n  \"\",\n  \"====================\",\n  \"THREADS POST\",\n  \"====================\",\n  asString(threadsPost.text),\n  \"\",\n  \"====================\",\n  \"TWITTER POST\",\n  \"====================\",\n  asString(twitterPost.text),\n  \"\",\n  \"====================\",\n  \"TWITTER THREAD\",\n  \"====================\",\n  joinTweetThread(twitterThread),\n  \"\",\n  \"====================\",\n  \"LINKEDIN POST\",\n  \"====================\",\n  asString(linkedinPost.text),\n  \"\",\n  \"CTA:\",\n  asString(linkedinPost.cta_line),\n  \"\",\n  \"====================\",\n  \"LINKEDIN ARTICLE\",\n  \"====================\",\n  `Title: ${asString(linkedinArticle.title)}`,\n  `Hook: ${asString(linkedinArticle.hook)}`,\n  `TL;DR: ${asString(linkedinArticle.tldr)}`,\n  \"\",\n  asString(linkedinArticle.body),\n  \"\",\n  \"Hashtags:\",\n  Array.isArray(linkedinArticle.hashtags) ? linkedinArticle.hashtags.join(\" \") : \"\",\n  \"\",\n  \"====================\",\n  \"BLOG POST\",\n  \"====================\",\n  `Title: ${asString(blog.title)}`,\n  `Slug: ${asString(blog.slug)}`,\n  `TL;DR: ${asString(blog.tldr)}`,\n  \"\",\n  `Meta Title: ${asString(blog.meta_title)}`,\n  `Meta Description: ${asString(blog.meta_description)}`,\n  \"\",\n  \"HTML Body:\",\n  asString(blog.html_body),\n  \"\",\n  \"Tags:\",\n  Array.isArray(blog.tags) ? blog.tags.join(\", \") : \"\",\n  \"\",\n  \"Image Prompt:\",\n  asString(blog.image_prompt),\n].filter(x => x !== null && x !== undefined);\n\nconst doc_title = `${titlePrefixDoc}`;\nconst doc_body = masterBodyParts.join(\"\\n\");\n\n// Sheet outputs for your 12 columns (store in Google Sheets columns)\nconst sheet_out = {\n  youtube_long: [\n    `Title: ${asString(youtubeLong.title)}`,\n    \"\",\n    asString(youtubeLong.script),\n    \"\",\n    \"Description:\",\n    asString(youtubeLong.description),\n    \"\",\n    \"Chapters:\",\n    Array.isArray(youtubeLong.chapters) ? youtubeLong.chapters.map(c => `${asString(c.t)} ${asString(c.label)}`).join(\" | \") : \"\",\n  ].join(\"\\n\").trim(),\n\n  youtube_short: [\n    `Title: ${asString(youtubeShort.title)}`,\n    \"\",\n    asString(youtubeShort.script),\n    \"\",\n    `On-screen: ${Array.isArray(youtubeShort.on_screen_beats) ? youtubeShort.on_screen_beats.join(\" | \") : \"\"}`,\n    \"\",\n    `Hashtags: ${Array.isArray(youtubeShort.hashtags) ? youtubeShort.hashtags.join(\" \") : \"\"}`,\n  ].join(\"\\n\").trim(),\n\n  instagram_reel: [\n    `Hook: ${asString(instagramReel.hook_text)}`,\n    \"\",\n    renderReelShots(instagramReel.shots),\n    \"\",\n    asString(instagramReel.caption_hinglish),\n    \"\",\n    `Hashtags: ${Array.isArray(instagramReel.hashtags) ? instagramReel.hashtags.join(\" \") : \"\"}`,\n  ].join(\"\\n\").trim(),\n\n  instagram_post: [\n    asString(instagramPost.caption_hinglish),\n    \"\",\n    `Hashtags: ${Array.isArray(instagramPost.hashtags) ? instagramPost.hashtags.join(\" \") : \"\"}`,\n  ].join(\"\\n\").trim(),\n\n  instagram_carousel: renderCarouselText(instagramCarousel),\n\n  facebook_post: [\n    asString(facebookPost.text),\n    \"\",\n    `CTA: ${asString(facebookPost.cta_line)}`,\n  ].join(\"\\n\").trim(),\n\n  thread_post: asString(threadsPost.text),\n\n  twitter_post: asString(twitterPost.text),\n\n  twitter_thread: joinTweetThread(twitterThread),\n\n  linkedin_post: [\n    asString(linkedinPost.text),\n    \"\",\n    `CTA: ${asString(linkedinPost.cta_line)}`,\n  ].join(\"\\n\").trim(),\n\n  linkedin_article: [\n    `Title: ${asString(linkedinArticle.title)}`,\n    \"\",\n    asString(linkedinArticle.body),\n    \"\",\n    `Hashtags: ${Array.isArray(linkedinArticle.hashtags) ? linkedinArticle.hashtags.join(\" \") : \"\"}`,\n  ].join(\"\\n\").trim(),\n\n  blog_post: [\n    `Title: ${asString(blog.title)}`,\n    \"\",\n    asString(blog.html_body),\n    \"\",\n    `Tags: ${Array.isArray(blog.tags) ? blog.tags.join(\", \") : \"\"}`,\n  ].join(\"\\n\").trim(),\n};\n\n// -------------------- Return ONE item (master) --------------------\nreturn [\n  {\n    json: {\n      ok: true,\n      payload,\n      sheet_out,\n      doc_title,\n      doc_body,\n      validation,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3792,
+        624
+      ],
+      "id": "7e303830-f2d6-4814-aba7-7ea3ff7014ca",
+      "name": "n8n Code Node: Parse + Flatten Multi-Platform JSON Payload"
+    },
+    {
+      "parameters": {
+        "jsCode": "/**\n * Explode docs[] into separate n8n items\n * Input: $json.docs is an array [{doc_type,title,body}, ...]\n * Output: each item = one doc job\n */\n\nfunction asString(x) {\n  return typeof x === \"string\" ? x : (x == null ? \"\" : String(x));\n}\n\nfunction joinTags(arr) {\n  if (!Array.isArray(arr)) return \"\";\n  return arr.map(t => asString(t).trim()).filter(Boolean).join(\", \");\n}\n\nfunction joinHashtags(arr) {\n  if (!Array.isArray(arr)) return \"\";\n  return arr\n    .map(t => asString(t).trim())\n    .filter(Boolean)\n    .map(t => (t.startsWith(\"#\") ? t : `#${t}`))\n    .join(\" \");\n}\n\nfunction mdBullet(arr) {\n  if (!Array.isArray(arr) || !arr.length) return \"\";\n  return arr.map(x => `- ${asString(x)}`).join(\"\\n\");\n}\n\nfunction renderCarouselText(carousel) {\n  const cover = carousel?.cover || {};\n  const slides = Array.isArray(carousel?.slides) ? carousel.slides : [];\n  const design = carousel?.design || {};\n  const slideLines = slides.map(s => {\n    const no = s.slide_no ?? \"\";\n    const title = asString(s.title);\n    const body = asString(s.body);\n    const osc = asString(s.on_screen_caption);\n    return [\n      `Slide ${no}: ${title}`.trim(),\n      body,\n      osc ? `On-screen: ${osc}` : \"\",\n      \"\"\n    ].filter(Boolean).join(\"\\n\");\n  }).join(\"\\n\");\n\n  return [\n    `Cover Headline: ${asString(cover.headline)}`,\n    `Cover Subheadline: ${asString(cover.subheadline)}`,\n    `Cover Badge: ${asString(cover.badge)}`,\n    \"\",\n    \"Slides:\",\n    slideLines,\n    \"\",\n    \"Design:\",\n    `Format: ${asString(design.format)}`,\n    `Style: ${asString(design.style)}`,\n    `Colors: ${design.colors ? JSON.stringify(design.colors) : \"\"}`,\n    `Fonts: ${Array.isArray(design.font_suggestions) ? design.font_suggestions.join(\", \") : \"\"}`,\n    `Layout Rules: ${Array.isArray(design.layout_rules) ? design.layout_rules.join(\" | \") : \"\"}`,\n  ].join(\"\\n\");\n}\n\nfunction renderReelShots(shots) {\n  if (!Array.isArray(shots) || !shots.length) return \"\";\n  return shots.map((s, i) => {\n    return [\n      `SHOT ${i + 1} (${asString(s.t_start)} - ${asString(s.t_end)})`,\n      `Visual: ${asString(s.visual)}`,\n      `On-screen: ${asString(s.on_screen_text)}`,\n      `VO: ${asString(s.voiceover_hinglish || s.voiceover)}`,\n      s.sfx ? `SFX: ${asString(s.sfx)}` : \"\",\n      \"\"\n    ].filter(Boolean).join(\"\\n\");\n  }).join(\"\\n\");\n}\n\nfunction renderYTChapters(chapters) {\n  if (!Array.isArray(chapters) || !chapters.length) return \"\";\n  return chapters.map(c => `${asString(c.t)} \u2014 ${asString(c.label)}`).join(\"\\n\");\n}\n\nfunction htmlOrText(x) {\n  // keep html as-is; otherwise string\n  return asString(x);\n}\n\nfunction safeFile(name) {\n  return String(name || \"Untitled\")\n    .replace(/[\\/\\\\?%*:|\"<>]/g, \"-\")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfunction buildDoc(type, title, body) {\n  return {\n    doc_type: type,\n    title: safeFile(title),\n    body: asString(body),\n  };\n}\n\nlet payload = $('n8n Code Node: Parse + Flatten Multi-Platform JSON Payload').first().json.payload;\n\n\n\n// -------------------- Extract Parts --------------------\nconst meta = payload.meta || {};\nconst youtubeLong = payload.youtube?.long || {};\nconst youtubeShort = payload.youtube?.short || {};\nconst instagramReel = payload.instagram?.reel || {};\nconst instagramPost = payload.instagram?.post || {};\nconst instagramCarousel = payload.instagram?.carousel || {};\nconst facebookPost = payload.facebook?.post || {};\nconst linkedinPost = payload.linkedin?.post || {};\nconst linkedinArticle = payload.linkedin?.article || {};\nconst blog = payload.blog || {};\nconst twitterPost = payload.twitter?.post || {};\nconst twitterThread = payload.twitter?.thread || {};\nconst threadsPost = payload.threads?.post || {};\nconst assets = payload.assets || {};\nconst validation = payload.validation || {};\nconst topicSafe = safeFile(meta.topic || \"Automation Content\");\nconst dayLabel = asString(meta.date_label || \"\");\nconst titlePrefix = safeFile(`${dayLabel ? dayLabel + \" - \" : \"\"}${topicSafe}`);\n\nconst docs = [];\n\n\n// Individual docs (easy to publish/copy)\ndocs.push(buildDoc(\"YT_LONG\", `${titlePrefix} - YouTube Long`, `${asString(youtubeLong.title)}\\n\\n${asString(youtubeLong.description)}\\n\\nChapters:\\n${renderYTChapters(youtubeLong.chapters)}\\n\\nTags:\\n${joinTags(youtubeLong.tags)}\\n\\nPinned:\\n${asString(youtubeLong.pinned_comment)}`));\ndocs.push(buildDoc(\"YT_SHORT\", `${titlePrefix} - YouTube Short`, `${asString(youtubeShort.title)}\\n\\nOn-screen:\\n${asString(youtubeShort.on_screen_text)}\\n\\nVoiceover:\\n${asString(youtubeShort.voiceover)}\\n\\nShots:\\n${renderReelShots(youtubeShort.shots)}\\n\\nDesc:\\n${asString(youtubeShort.description)}\\n\\nHashtags:\\n${joinHashtags(youtubeShort.hashtags)}`));\ndocs.push(buildDoc(\"IG_REEL\", `${titlePrefix} - IG Reel`, `Hook:\\n${asString(instagramReel.hook_text)}\\n\\nCaption:\\n${asString(instagramReel.caption_hinglish)}\\n\\nShots:\\n${renderReelShots(instagramReel.shots)}\\n\\nHashtags:\\n${joinHashtags(instagramReel.hashtags)}\\n\\nCTA:\\n${asString(instagramReel.cta_line)}`));\ndocs.push(buildDoc(\"IG_POST\", `${titlePrefix} - IG Post`, `${asString(instagramPost.caption_hinglish)}\\n\\nHashtags:\\n${joinHashtags(instagramPost.hashtags)}\\n\\nCTA:\\n${asString(instagramPost.cta_line)}`));\ndocs.push(buildDoc(\"IG_CAROUSEL\", `${titlePrefix} - IG Carousel`, renderCarouselText(instagramCarousel)));\ndocs.push(buildDoc(\"FB_POST\", `${titlePrefix} - Facebook Post`, `${asString(facebookPost.text)}\\n\\nCTA:\\n${asString(facebookPost.cta_line)}\\n\\nHashtags:\\n${joinHashtags(facebookPost.hashtags)}`));\ndocs.push(buildDoc(\"LI_POST\", `${titlePrefix} - LinkedIn Post`, `${asString(linkedinPost.text)}\\n\\nCTA:\\n${asString(linkedinPost.cta_line)}\\n\\nHashtags:\\n${joinHashtags(linkedinPost.hashtags)}`));\n\nconst liArticleBody = [\n  `${asString(linkedinArticle.title)}`,\n  \"\",\n  `Hook:\\n${asString(linkedinArticle.hook)}`,\n  \"\",\n  `TL;DR:\\n${asString(linkedinArticle.tldr)}`,\n  \"\",\n  ...(Array.isArray(linkedinArticle.sections) ? linkedinArticle.sections.flatMap(s => [`## ${asString(s.h2)}`, asString(s.body), \"\"]) : []),\n  `CTA:\\n${asString(linkedinArticle.cta)}`,\n].filter(Boolean).join(\"\\n\");\n\ndocs.push(buildDoc(\"LI_ARTICLE\", `${titlePrefix} - LinkedIn Article`, liArticleBody));\n\nconst blogBody = [\n  `${asString(blog.title)}`,\n  \"\",\n  `TL;DR:\\n${asString(blog.tldr)}`,\n  \"\",\n  \"HTML BODY:\",\n  htmlOrText(blog.html_body),\n  \"\",\n  `Tags: ${joinTags(blog.tags)}`,\n  \"\",\n  \"SEO:\",\n  `Meta title: ${asString(blog.seo?.meta_title)}`,\n  `Meta desc: ${asString(blog.seo?.meta_description)}`,\n  `Keywords: ${Array.isArray(blog.seo?.keywords) ? blog.seo.keywords.join(\", \") : \"\"}`,\n  \"\",\n  `Image prompt: ${asString(blog.image_prompt)}`,\n].filter(Boolean).join(\"\\n\");\n\ndocs.push(buildDoc(\"BLOG\", `${titlePrefix} - Blog`, blogBody));\n\nconst xThreadBody = [\n  `Hook tweet:\\n${asString(twitterThread.hook_tweet)}`,\n  \"\",\n  \"Tweets:\",\n  ...(Array.isArray(twitterThread.tweets) ? twitterThread.tweets.map((t, i) => `${i + 1}. ${asString(t)}`) : []),\n].join(\"\\n\");\n\ndocs.push(buildDoc(\"X_POST\", `${titlePrefix} - X Post`, asString(twitterPost.text)));\ndocs.push(buildDoc(\"X_THREAD\", `${titlePrefix} - X Thread`, xThreadBody));\ndocs.push(buildDoc(\"THREADS_POST\", `${titlePrefix} - Threads Post`, asString(threadsPost.text)));\n\n\nif (!Array.isArray(docs) || docs.length === 0) {\n  throw new Error(\"docs[] missing or empty. Ensure previous node returns { docs: [...] }\");\n}\n\n// carry useful context forward (optional)\nconst topic = $json.sheet?.topic || $json.payload?.meta?.topic || $json.topic || \"\";\nconst rowId = $json.rowId || $json.sheet_row_id || \"\";\nconst targetFolderId = $json.targetFolderId || $json.drive_folder_id || $json.folderId || \"\";\n\nreturn docs.map(d => ({\n  json: {\n    // doc job fields (used by Google Docs nodes)\n    doc_type: d.doc_type,\n    title: d.title,\n    body: d.body,\n\n    // context (optional)\n    topic,\n    rowId,\n    targetFolderId,\n  },\n}));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4672,
+        336
+      ],
+      "id": "04a2208b-0983-4bb8-a782-6d238313689f",
+      "name": "Code node to explode docs"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://docs.googleapis.com/v1/documents",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"{{$json.title}}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        4880,
+        560
+      ],
+      "id": "91d2ac9e-175a-431d-b985-eaab984a8140",
+      "name": "Create Google Docs"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{$json.documentId}}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\nJSON.stringify({\n  \"requests\": [\n    {\n      \"insertText\": {\n        \"location\": { \"index\": 1 },\n        \"text\": $('Code node to explode docs').item.json.body\n      }\n    }\n  ]\n})\n}}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        5056,
+        320
+      ],
+      "id": "bc737b8b-315d-4f9c-a26f-d7420bc819d5",
+      "name": "Insert Content (batchUpdate) for docs"
+    },
+    {
+      "parameters": {
+        "operation": "move",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1xCIFOX2PKD9ywWNHTOnQDgO9UpQFt9At",
+          "mode": "list",
+          "cachedResultName": "N8N-Automation",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1xCIFOX2PKD9ywWNHTOnQDgO9UpQFt9At"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        5280,
+        544
+      ],
+      "id": "ae5d7976-33fc-4c44-8ac0-a01c1d8f0178",
+      "name": "Move Docs file"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \u2018Execute workflow\u2019": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "n8n Code Node: Parse + Flatten Multi-Platform JSON Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "n8n Code Node: Parse + Flatten Multi-Platform JSON Payload": {
+      "main": [
+        [
+          {
+            "node": "Create Google Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Google Doc": {
+      "main": [
+        [
+          {
+            "node": "Insert Content (batchUpdate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Content (batchUpdate)": {
+      "main": [
+        [
+          {
+            "node": "Move file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Move file": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code node to explode docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code node to explode docs": {
+      "main": [
+        [
+          {
+            "node": "Create Google Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Google Docs": {
+      "main": [
+        [
+          {
+            "node": "Insert Content (batchUpdate) for docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Content (batchUpdate) for docs": {
+      "main": [
+        [
+          {
+            "node": "Move Docs file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "e7d753a1-f206-426b-97d3-846d7230bc57",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3ed29e6a64dcf47dec104c5d55a0d766c4fe258925a5941bd45f977b041986eb"
+  },
+  "id": "bWzKr2CkAAoISE52",
+  "tags": [
+    {
+      "updatedAt": "2026-01-21T11:47:37.801Z",
+      "createdAt": "2026-01-21T11:47:37.801Z",
+      "id": "ui24RtCGOnhTEJ2r",
+      "name": "Youtube"
+    }
+  ]
+}
