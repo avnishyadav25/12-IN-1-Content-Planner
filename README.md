@@ -1003,3 +1003,55 @@ return docs.map(d => ({
   },
 }));
 ```
+
+## n8n Google Docs Node Configuration
+
+These configurations are used in the Google Docs nodes to dynamically create documents and insert content.
+
+### Create Google Doc (Docs Node)
+**Title Expression:**
+```javascript
+{{ { "title": $node["n8n Code Node: Parse + Flatten Multi-Platform JSON Payload"].json.doc_title } }}
+```
+
+### Insert Content (batchUpdate) (HTTP Request Node)
+**JSON Body:**
+```javascript
+{{
+JSON.stringify({
+  "requests": [
+    {
+      "insertText": {
+        "location": { "index": 1 },
+        "text": $node["n8n Code Node: Parse + Flatten Multi-Platform JSON Payload"].json.doc_body
+      }
+    }
+  ]
+})
+}}
+```
+
+### Create Google Docs (Master Doc) (Docs Node)
+**Title Expression:**
+```json
+{
+  "title": "{{$json.title}}"
+}
+```
+
+### Insert Content (batchUpdate) for docs (HTTP Request Node)
+**JSON Body:**
+```javascript
+{{
+JSON.stringify({
+  "requests": [
+    {
+      "insertText": {
+        "location": { "index": 1 },
+        "text": $('Code node to explode docs').item.json.body
+      }
+    }
+  ]
+})
+}}
+```
