@@ -1,48 +1,117 @@
-# 12 in 1 Content Planner (Complete)
+# 12-in-1 Content Planner (n8n workflow)
 
-![12 in 1 Content Planner Overview](content-planner-overview.png)
+One topic in a Google Sheet in, a 12-format content pack out: an n8n workflow that asks Google Gemini for every
+draft in one JSON payload and writes them to Google Docs, Drive and back to the sheet.
 
-A comprehensive n8n workflow for automated content planning and generation across multiple platforms.
+![12 in 1 Content Planner overview: the n8n canvas with all 11 nodes](content-planner-overview.png)
 
-> **🚀 Special Offer**: Get **20% off** if you host your n8n on Hostinger!  
-> [**Click here to claim your discount**](https://hostinger.in?REFERRALCODE=AVNISH)
+## What it does
 
+You keep a list of topics in a Google Sheet. When you mark a row `READY` and run the workflow, it:
 
-## Prerequisites
+1. reads the topic title from the sheet,
+2. sends one prompt to Google Gemini that asks for a strict JSON "content pack",
+3. parses that JSON in a Code node,
+4. creates one master Google Doc with every section, plus one Google Doc per format, in a Drive folder,
+5. writes all 12 drafts into the sheet row and sets `Status` to `DONE`.
 
-Here’s what you need to get started:
+It writes drafts only. Nothing is posted or scheduled; you review and publish yourself.
 
-### ✅ Software/Services
-- **n8n** (Self-hosted or Cloud)
-- **Google Cloud Project** with the following APIs enabled:
-  - Google Sheets API
-  - Google Drive API
-  - Google Docs API
-- **AI Model API** (One of the following):
-  - Google Gemini
-  - DeepSeek
-  - OpenAI
+**Why:** writing the same idea twelve ways for twelve formats is repetitive. This gets every first draft for a
+topic into one place, in a consistent voice, so the time goes into editing.
 
-### ✅ Google API Scopes (Important)
-For Google OAuth, make sure your credentials have these scopes allowed:
-- **Google Sheets**: Read/Write (`https://www.googleapis.com/auth/spreadsheets`)
-- **Google Drive**: Access (`https://www.googleapis.com/auth/drive`)
-- **Google Docs**: Access (`https://www.googleapis.com/auth/documents`)
+## What you get per topic
 
-## Workflow Overview
+| Channel | Formats |
+|---|---|
+| YouTube | Long video (6–9 min script, description, chapters, tags, pinned comment, thumbnail ideas), Short (45–60 s script, on-screen beats) |
+| Instagram | Reel (35–45 s, 8–12 shots with timestamps and voiceover), Post caption, Carousel (exactly 10 slides) |
+| Facebook | Post |
+| Threads | Post |
+| X / Twitter | Post, Thread |
+| LinkedIn | Post, Article |
+| Blog | Title, slug, TL;DR, meta title and description, HTML body, tags, image prompt |
 
-### ✅ n8n Nodes Used
-This workflow utilizes the following key nodes:
-- **Manual Trigger / Cron Trigger**: To start the workflow manually or on a schedule.
-- **Google Sheets (Read/Update)**: To fetch topics and update status.
-- **HTTP Request**: For making AI calls and batch updates to Google Docs.
-- **Code Node**: To parse the JSON response from the AI, build document structures, and flatten data for the sheet.
-- **Item Lists / Code**: To split out or explode documents into individual items.
-- **Google Drive**: To create folders and move generated files.
+That is 12 sheet columns and 13 Google Docs (12 per-format docs plus a master doc) per run. Reel voiceover and
+Instagram captions are written in Hinglish; change the language rules in the prompt if you need something else.
 
-## System Prompt
+## Architecture
 
-You can use the following prompt in your AI model node to generate the content:
+```mermaid
+flowchart LR
+    T([Manual trigger]) --> R[Google Sheets:<br/>get READY rows]
+    R --> G[Gemini:<br/>message a model]
+    G --> P[Code: parse +<br/>flatten JSON]
+    P --> D1[Docs API: create +<br/>fill master doc]
+    D1 --> M1[Drive: move file]
+    M1 --> U[Google Sheets:<br/>update row, DONE]
+    U --> X[Code: explode<br/>12 doc jobs]
+    X --> D2[Docs API: create +<br/>fill 12 docs]
+    D2 --> M2[Drive: move files]
+```
+
+| Node | Type | Job |
+|---|---|---|
+| When clicking 'Execute workflow' | Manual Trigger | Starts a run |
+| Get row(s) in sheet | Google Sheets | Reads rows where `Status = READY` |
+| Message a model | Google Gemini (`models/gemini-3-pro-preview`) | Generates the JSON content pack |
+| n8n Code Node: Parse + Flatten Multi-Platform JSON Payload | Code | Extracts the JSON, builds the master doc body and the 12 sheet values |
+| Create Google Doc / Insert Content (batchUpdate) | HTTP Request → Google Docs API | Creates the master doc and inserts the text |
+| Move file | Google Drive | Moves the master doc into your folder |
+| Update row in sheet | Google Sheets | Writes the 12 columns, sets `Status` to `DONE` (matches on `Title`) |
+| Code node to explode docs | Code | Turns the payload into 12 doc jobs |
+| Create Google Docs / Insert Content (batchUpdate) for docs | HTTP Request → Google Docs API | Creates and fills one doc per format |
+| Move Docs file | Google Drive | Moves each doc into your folder |
+
+The full JavaScript for both Code nodes is inside the workflow JSON; open the node in n8n to read or edit it.
+
+## Quick start
+
+### Requirements
+
+- n8n (self-hosted or n8n Cloud)
+- A Google Cloud project with the **Google Sheets API**, **Google Drive API** and **Google Docs API** enabled
+- An OAuth client whose consent screen allows these scopes:
+  - `https://www.googleapis.com/auth/spreadsheets`
+  - `https://www.googleapis.com/auth/drive`
+  - `https://www.googleapis.com/auth/documents`
+- A Google Gemini API key
+
+### 1. Create the sheet
+
+Make a Google Sheet with these column headers in row 1, spelled exactly like this:
+
+```text
+Title | Status | YouTube Long | Youtube Short | Instagram Reel | Instagram Post | Instagram Carousel | Facebook Post | Thread Post | Twitter Post | Twitter Thread | Linkedin Post | Linkedin Article | Blog Post
+```
+
+Add a topic in `Title` and set `Status` to `READY`.
+
+### 2. Import the workflow
+
+1. In n8n, create a new workflow and import `12 in 1 Content Planner (Complete).json`.
+2. Create these credentials in n8n (names are n8n's credential types; no keys go in this repo):
+   - Google Sheets OAuth2
+   - Google Drive OAuth2
+   - Google Docs OAuth2 (used by the four HTTP Request nodes)
+   - Google Gemini (PaLM) API
+3. Open both Google Sheets nodes and select **your** spreadsheet and sheet. The export still points at the
+   author's sheet.
+4. Open both Google Drive "Move" nodes and select **your** destination folder.
+
+### 3. Run it
+
+Click **Execute workflow**. When it finishes, the row says `DONE`, its 12 columns are filled, and the folder has
+13 new Google Docs named after the topic.
+
+## Customising the prompt
+
+The prompt lives in the **Message a model** node. The `brand` block sets the channel name, promise and tone, and
+`cta_keyword` / `lead_magnet` set the comment-to-get call to action. Change those first. The JSON shape must stay
+as it is unless you also update both Code nodes.
+
+<details>
+<summary>Full system prompt (as used in the workflow)</summary>
 
 ```text
 You are an expert automation content creator. Generate a complete "12 in 1 Content Planner" content pack for ONE topic.
@@ -224,834 +293,50 @@ Rules for generating Reel shots:
 Return ONLY the JSON.
 ```
 
-## n8n Code Node Logic
+</details>
 
-This is the code used in the "Parse + Flatten Multi-Platform JSON Payload" node. It handles extracting the JSON from the LLM response, flattening the structure for Google Sheets, and preparing document jobs for Google Docs.
+## Known limitations
 
-```javascript
-/**
- * n8n Code Node: Parse + Flatten Multi-Platform JSON Payload
- *
- * Goal:
- * - Take the LLM JSON payload (already parsed OR raw text) and split/flatten into parts:
- *   YouTube Long/Short, Facebook Post, Instagram Reel/Post/Carousel,
- *   LinkedIn Post/Article, Blog Post, Twitter Post/Thread, Threads Post
- *
- * Outputs:
- * 1) One "master" item with flattened fields you can map to Google Sheets columns
- * 2) A "docs" array you can Split In Batches to create Google Docs in Drive
- *
- * How to use:
- * - Place after your LLM node (or after your JSON-validate node)
- * - If you already output payload at $json.payload, it will use that.
- * - If your LLM node output is raw text, it will attempt to extract JSON and parse it.
- */
+- **One topic per run.** The parse node reads the first item only, so if several rows are `READY`, run the
+  workflow once per topic (or add a Loop Over Items node).
+- **Manual trigger only.** Add a Schedule Trigger node if you want it to run on its own.
+- **Gemini output shape.** The parse node reads `content.parts[0].text` from the Gemini node. To use another model
+  (OpenAI, DeepSeek), swap the model node and change that line.
+- **Some per-format docs miss fields.** The "explode docs" node reads a few fields the prompt doesn't ask for
+  (`youtube.short.on_screen_text` / `voiceover` / `shots`, `linkedin.article.sections` / `cta`, `blog.seo.*`,
+  `twitter.thread.hook_tweet`), so those parts come out empty in the YouTube Short, LinkedIn Article, Blog and
+  X Thread docs. The master doc and the sheet columns use the right fields.
+- **No validation step.** The prompt asks the model for a `validation` object, but no node checks it yet, and
+  there is no error branch. If Gemini returns invalid JSON, the parse node fails the run.
+- **No publishing.** Image outputs are prompts and concepts only; nothing is sent to a social network or a
+  scheduler.
 
-function pickFirstString(obj) {
-  if (obj == null) return null;
-  if (typeof obj === "string") return obj;
+## Files
 
-  // Gemini
-  try {
-    const parts = obj?.candidates?.[0]?.content?.parts;
-    if (Array.isArray(parts)) {
-      const textPart = parts.find(p => typeof p?.text === "string");
-      if (textPart?.text) return textPart.text;
-    }
-  } catch (e) {}
+| File | What it is |
+|---|---|
+| `12 in 1 Content Planner (Complete).json` | The n8n workflow export (import this) |
+| `content-planner-overview.png` | Screenshot of the workflow |
 
-  // OpenAI-style
-  try {
-    const c = obj?.choices?.[0];
-    if (typeof c?.message?.content === "string") return c.message.content;
-    if (typeof c?.text === "string") return c.text;
-  } catch (e) {}
+## Demo
 
-  // Common
-  for (const k of ["text", "content", "body", "data", "response", "result", "message", "output"]) {
-    if (typeof obj?.[k] === "string") return obj[k];
-    if (obj?.[k] && typeof obj[k] === "object") {
-      const nested = pickFirstString(obj[k]);
-      if (nested) return nested;
-    }
-  }
+- Full tutorial on YouTube: [12-in-1 Content Planner Automation (n8n + Google Sheets + AI + Docs)](https://www.youtube.com/watch?v=wk8srFICvH4)
+- Project write-up: _coming soon_ <!-- TODO: https://avnishyadav.com/projects/n8n-content-machine once published -->
 
-  return null;
-}
+## Hosting n8n
 
-function stripCodeFences(s) {
-  return String(s || "")
-    .replace(/```(?:json)?\s*/gi, "")
-    .replace(/```/g, "")
-    .trim();
-}
+If you need somewhere to run n8n, Hostinger offers 20% off with my referral link:
+[hostinger.in?REFERRALCODE=AVNISH](https://hostinger.in?REFERRALCODE=AVNISH) (referral link; I get a commission).
 
-function extractJsonObject(raw) {
-  const s = stripCodeFences(raw);
-  const start = s.indexOf("{");
-  const end = s.lastIndexOf("}");
-  if (start === -1 || end === -1 || end <= start) return null;
-  return s.slice(start, end + 1);
-}
+## License
 
-function repairJson(s) {
-  // minimal repairs
-  return String(s || "")
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .replace(/,\s*([}\]])/g, "$1");
-}
+No license has been chosen for this repository yet. <!-- TODO (owner): add a LICENSE file and update this line. -->
 
-function asString(x) {
-  return typeof x === "string" ? x : (x == null ? "" : String(x));
-}
+## Author
 
-function joinTags(arr) {
-  if (!Array.isArray(arr)) return "";
-  return arr.map(t => asString(t).trim()).filter(Boolean).join(", ");
-}
+Built by **Avnish Yadav**, AI automation engineer.
 
-function joinHashtags(arr) {
-  if (!Array.isArray(arr)) return "";
-  return arr
-    .map(t => asString(t).trim())
-    .filter(Boolean)
-    .map(t => (t.startsWith("#") ? t : `#${t}`))
-    .join(" ");
-}
-
-function mdBullet(arr) {
-  if (!Array.isArray(arr) || !arr.length) return "";
-  return arr.map(x => `- ${asString(x)}`).join("\n");
-}
-
-function renderCarouselText(carousel) {
-  const cover = carousel?.cover || {};
-  const slides = Array.isArray(carousel?.slides) ? carousel.slides : [];
-  const design = carousel?.design || {};
-  const slideLines = slides.map(s => {
-    const no = s.slide_no ?? "";
-    const title = asString(s.title);
-    const body = asString(s.body);
-    const osc = asString(s.on_screen_caption);
-    return [
-      `Slide ${no}: ${title}`.trim(),
-      body,
-      osc ? `On-screen: ${osc}` : "",
-      ""
-    ].filter(Boolean).join("\n");
-  }).join("\n");
-
-  return [
-    `Cover Headline: ${asString(cover.headline)}`,
-    `Cover Subheadline: ${asString(cover.subheadline)}`,
-    `Cover Badge: ${asString(cover.badge)}`,
-    "",
-    "Slides:",
-    slideLines,
-    "",
-    "Design:",
-    `Format: ${asString(design.format)}`,
-    `Style: ${asString(design.style)}`,
-    `Colors: ${design.colors ? JSON.stringify(design.colors) : ""}`,
-    `Fonts: ${Array.isArray(design.font_suggestions) ? design.font_suggestions.join(", ") : ""}`,
-    `Layout Rules: ${Array.isArray(design.layout_rules) ? design.layout_rules.join(" | ") : ""}`,
-  ].join("\n");
-}
-
-function renderReelShots(shots) {
-  if (!Array.isArray(shots) || !shots.length) return "";
-  return shots.map((s, i) => {
-    return [
-      `SHOT ${i + 1} (${asString(s.t_start)} - ${asString(s.t_end)})`,
-      `Visual: ${asString(s.visual)}`,
-      `On-screen: ${asString(s.on_screen_text)}`,
-      `VO: ${asString(s.voiceover_hinglish || s.voiceover)}`,
-      s.sfx ? `SFX: ${asString(s.sfx)}` : "",
-      ""
-    ].filter(Boolean).join("\n");
-  }).join("\n");
-}
-
-function renderYTChapters(chapters) {
-  if (!Array.isArray(chapters) || !chapters.length) return "";
-  return chapters.map(c => `${asString(c.t)} — ${asString(c.label)}`).join("\n");
-}
-
-function htmlOrText(x) {
-  // keep html as-is; otherwise string
-  return asString(x);
-}
-
-// -------------------- MAIN: get payload --------------------
-const inputItem = $input.first().json.content.parts[0].text
-const extracted = extractJsonObject(inputItem);
-let payload = JSON.parse(extracted);;
-
-// -------------------- Extract Parts --------------------
-const meta = payload.meta || {};
-const youtubeLong = payload.youtube?.long || {};
-const youtubeShort = payload.youtube?.short || {};
-const instagramReel = payload.instagram?.reel || {};
-const instagramPost = payload.instagram?.post || {};
-const instagramCarousel = payload.instagram?.carousel || {};
-const facebookPost = payload.facebook?.post || {};
-const linkedinPost = payload.linkedin?.post || {};
-const linkedinArticle = payload.linkedin?.article || {};
-const blog = payload.blog || {};
-const twitterPost = payload.twitter?.post || {};
-const twitterThread = payload.twitter?.thread || {};
-const threadsPost = payload.threads?.post || {};
-const assets = payload.assets || {};
-const validation = payload.validation || {};
-
-// -------------------- Flatten for Google Sheets --------------------
-// You can rename these keys to match your exact sheet headers.
-const sheet = {
-  topic: asString(meta.topic),
-  content_angle: asString(meta.content_angle),
-  primary_pain: asString(meta.primary_pain),
-  big_payoff: asString(meta.big_payoff),
-  cta_keyword: asString(meta.cta_keyword),
-  lead_magnet: asString(meta.lead_magnet),
-
-  yt_long_title: asString(youtubeLong.title),
-  yt_long_hook: asString(youtubeLong.hook_1_line),
-  yt_long_outline: mdBullet(youtubeLong.outline_bullets),
-  yt_long_description: asString(youtubeLong.description),
-  yt_long_chapters: renderYTChapters(youtubeLong.chapters),
-  yt_long_tags: joinTags(youtubeLong.tags),
-  yt_long_pinned_comment: asString(youtubeLong.pinned_comment),
-  yt_thumb_text_options: Array.isArray(youtubeLong.thumbnail?.text_options) ? youtubeLong.thumbnail.text_options.join(" | ") : "",
-  yt_thumb_concept: asString(youtubeLong.thumbnail?.visual_concept),
-  yt_thumb_notes: asString(youtubeLong.thumbnail?.composition_notes),
-
-  yt_short_title: asString(youtubeShort.title),
-  yt_short_on_screen: asString(youtubeShort.on_screen_text),
-  yt_short_voiceover: asString(youtubeShort.voiceover),
-  yt_short_shots: renderReelShots(youtubeShort.shots),
-  yt_short_description: asString(youtubeShort.description),
-  yt_short_hashtags: joinHashtags(youtubeShort.hashtags),
-
-  ig_reel_hook: asString(instagramReel.hook_text),
-  ig_reel_caption: asString(instagramReel.caption_hinglish),
-  ig_reel_hashtags: joinHashtags(instagramReel.hashtags),
-  ig_reel_cta: asString(instagramReel.cta_line),
-  ig_reel_shots: renderReelShots(instagramReel.shots),
-
-  ig_post_caption: asString(instagramPost.caption_hinglish),
-  ig_post_hashtags: joinHashtags(instagramPost.hashtags),
-  ig_post_cta: asString(instagramPost.cta_line),
-
-  ig_carousel_cover_headline: asString(instagramCarousel.cover?.headline),
-  ig_carousel_cover_subheadline: asString(instagramCarousel.cover?.subheadline),
-  ig_carousel_cover_badge: asString(instagramCarousel.cover?.badge),
-  ig_carousel_slides_text: renderCarouselText(instagramCarousel),
-
-  fb_post_text: asString(facebookPost.text),
-  fb_post_cta: asString(facebookPost.cta_line),
-  fb_post_hashtags: joinHashtags(facebookPost.hashtags),
-
-  li_post_text: asString(linkedinPost.text),
-  li_post_cta: asString(linkedinPost.cta_line),
-  li_post_hashtags: joinHashtags(linkedinPost.hashtags),
-
-  li_article_title: asString(linkedinArticle.title),
-  li_article_hook: asString(linkedinArticle.hook),
-  li_article_tldr: asString(linkedinArticle.tldr),
-  li_article_sections_json: JSON.stringify(linkedinArticle.sections || []),
-  li_article_cta: asString(linkedinArticle.cta),
-
-  blog_title: asString(blog.title),
-  blog_slug: asString(blog.slug),
-  blog_tldr: asString(blog.tldr),
-  blog_tags: joinTags(blog.tags),
-  blog_html: htmlOrText(blog.html_body),
-  blog_meta_title: asString(blog.seo?.meta_title),
-  blog_meta_description: asString(blog.seo?.meta_description),
-  blog_keywords: Array.isArray(blog.seo?.keywords) ? blog.seo.keywords.join(", ") : "",
-  blog_image_prompt: asString(blog.image_prompt),
-
-  x_post_text: asString(twitterPost.text),
-  x_thread_hook: asString(twitterThread.hook_tweet),
-  x_thread_tweets_json: JSON.stringify(twitterThread.tweets || []),
-
-  threads_post_text: asString(threadsPost.text),
-
-  assets_screen_recording_list: JSON.stringify(assets.screen_recording_list || []),
-  assets_broll_ideas: JSON.stringify(assets.broll_ideas || []),
-
-  validation_json: JSON.stringify(validation),
-};
-
-// -------------------- Build Google Docs “jobs” --------------------
-// You can create one doc per part OR one master doc.
-// Here we output one doc per part (recommended), plus a master doc.
-const topicSafe = safeFile(meta.topic || "Automation Content");
-const dayLabel = asString(meta.date_label || "");
-const titlePrefix = safeFile(`${dayLabel ? dayLabel + " - " : ""}${topicSafe}`);
-
-function safeFile(name) {
-  return String(name || "Untitled")
-    .replace(/[\/\\?%*:|"<>]/g, "-")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function buildDoc(type, title, body) {
-  return {
-    doc_type: type,
-    title: safeFile(title),
-    body: asString(body),
-  };
-}
-
-// -------------------- Build ONE Master Google Doc --------------------
-function joinLines(arr) {
-  if (!Array.isArray(arr)) return "";
-  return arr.map(x => String(x ?? "")).filter(Boolean).join("\n");
-}
-
-function joinTweetThread(threadObj) {
-  const tweets = Array.isArray(threadObj?.tweets) ? threadObj.tweets : [];
-  if (tweets.length) return tweets.map((t, i) => `${i+1}. ${String(t ?? "").trim()}`).join("\n\n");
-  // fallback (some models may return "text")
-  return asString(threadObj?.text, "");
-}
-
-function renderCarouselText(carousel) {
-  const c = carousel || {};
-  const cover = c.cover || {};
-  const slides = Array.isArray(c.slides) ? c.slides : [];
-  const lines = [];
-  lines.push(`COVER: ${asString(cover.headline)} | ${asString(cover.subheadline)} | ${asString(cover.badge)}`);
-  slides.forEach(s => {
-    lines.push(`Slide ${s.slide_no}: ${asString(s.title)} — ${asString(s.body)}`);
-  });
-  return lines.join("\n");
-}
-
-function renderReelShots(shots) {
-  if (!Array.isArray(shots)) return "";
-  return shots.map((s, i) => {
-    return [
-      `SHOT ${i+1} (${asString(s.t_start)}-${asString(s.t_end)})`,
-      `Visual: ${asString(s.visual)}`,
-      `On-screen: ${asString(s.on_screen_text)}`,
-      `VO: ${asString(s.voiceover_hinglish)}`,
-      `SFX: ${asString(s.sfx)}`,
-    ].join("\n");
-  }).join("\n\n");
-}
-
-// Build master doc body (single file)
-const titlePrefixDoc = safeFile(`${asString(meta.topic)}`) || "Content Pack";
-
-const masterBodyParts = [
-  `DAY / TOPIC: ${asString(meta.topic)}`,
-  `ANGLE: ${asString(meta.content_angle)}`,
-  `PAIN: ${asString(meta.primary_pain)}`,
-  `PAYOFF: ${asString(meta.big_payoff)}`,
-  `CTA: Comment "${asString(meta.cta_keyword)}" to get "${asString(meta.lead_magnet)}"`,
-  "",
-  "====================",
-  "YOUTUBE LONG",
-  "====================",
-  `Title: ${asString(youtubeLong.title)}`,
-  `Hook: ${asString(youtubeLong.hook_1_line)}`,
-  "",
-  "Outline:",
-  joinLines(youtubeLong.outline_bullets),
-  "",
-  "Script:",
-  asString(youtubeLong.script),
-  "",
-  "Description:",
-  asString(youtubeLong.description),
-  "",
-  "Chapters:",
-  Array.isArray(youtubeLong.chapters) ? youtubeLong.chapters.map(c => `${asString(c.t)} - ${asString(c.label)}`).join("\n") : "",
-  "",
-  "Tags:",
-  Array.isArray(youtubeLong.tags) ? youtubeLong.tags.join(", ") : "",
-  "",
-  "Pinned Comment:",
-  asString(youtubeLong.pinned_comment),
-  "",
-  "Thumbnail:",
-  `Text Options: ${Array.isArray(youtubeLong.thumbnail?.text_options) ? youtubeLong.thumbnail.text_options.join(" | ") : ""}`,
-  `Concept: ${asString(youtubeLong.thumbnail?.visual_concept)}`,
-  `Notes: ${asString(youtubeLong.thumbnail?.composition_notes)}`,
-  "",
-  "====================",
-  "YOUTUBE SHORT",
-  "====================",
-  `Title: ${asString(youtubeShort.title)}`,
-  "",
-  "Script:",
-  asString(youtubeShort.script),
-  "",
-  "On-screen beats:",
-  Array.isArray(youtubeShort.on_screen_beats) ? youtubeShort.on_screen_beats.join(" | ") : "",
-  "",
-  "Description:",
-  asString(youtubeShort.description),
-  "",
-  "Hashtags:",
-  Array.isArray(youtubeShort.hashtags) ? youtubeShort.hashtags.join(" ") : "",
-  "",
-  "====================",
-  "INSTAGRAM REEL",
-  "====================",
-  `Hook: ${asString(instagramReel.hook_text)}`,
-  `Duration: ${instagramReel.duration_sec} sec`,
-  "",
-  "Shots:",
-  renderReelShots(instagramReel.shots),
-  "",
-  "Caption (Hinglish):",
-  asString(instagramReel.caption_hinglish),
-  "",
-  "Hashtags:",
-  Array.isArray(instagramReel.hashtags) ? instagramReel.hashtags.join(" ") : "",
-  "",
-  "CTA:",
-  asString(instagramReel.cta_line),
-  "",
-  "====================",
-  "INSTAGRAM POST",
-  "====================",
-  asString(instagramPost.caption_hinglish),
-  "",
-  "Hashtags:",
-  Array.isArray(instagramPost.hashtags) ? instagramPost.hashtags.join(" ") : "",
-  "",
-  "CTA:",
-  asString(instagramPost.cta_line),
-  "",
-  "====================",
-  "INSTAGRAM CAROUSEL",
-  "====================",
-  renderCarouselText(instagramCarousel),
-  "",
-  "====================",
-  "FACEBOOK POST",
-  "====================",
-  asString(facebookPost.text),
-  "",
-  "CTA:",
-  asString(facebookPost.cta_line),
-  "",
-  "====================",
-  "THREADS POST",
-  "====================",
-  asString(threadsPost.text),
-  "",
-  "====================",
-  "TWITTER POST",
-  "====================",
-  asString(twitterPost.text),
-  "",
-  "====================",
-  "TWITTER THREAD",
-  "====================",
-  joinTweetThread(twitterThread),
-  "",
-  "====================",
-  "LINKEDIN POST",
-  "====================",
-  asString(linkedinPost.text),
-  "",
-  "CTA:",
-  asString(linkedinPost.cta_line),
-  "",
-  "====================",
-  "LINKEDIN ARTICLE",
-  "====================",
-  `Title: ${asString(linkedinArticle.title)}`,
-  `Hook: ${asString(linkedinArticle.hook)}`,
-  `TL;DR: ${asString(linkedinArticle.tldr)}`,
-  "",
-  asString(linkedinArticle.body),
-  "",
-  "Hashtags:",
-  Array.isArray(linkedinArticle.hashtags) ? linkedinArticle.hashtags.join(" ") : "",
-  "",
-  "====================",
-  "BLOG POST",
-  "====================",
-  `Title: ${asString(blog.title)}`,
-  `Slug: ${asString(blog.slug)}`,
-  `TL;DR: ${asString(blog.tldr)}`,
-  "",
-  `Meta Title: ${asString(blog.meta_title)}`,
-  `Meta Description: ${asString(blog.meta_description)}`,
-  "",
-  "HTML Body:",
-  asString(blog.html_body),
-  "",
-  "Tags:",
-  Array.isArray(blog.tags) ? blog.tags.join(", ") : "",
-  "",
-  "Image Prompt:",
-  asString(blog.image_prompt),
-].filter(x => x !== null && x !== undefined);
-
-const doc_title = `${titlePrefixDoc}`;
-const doc_body = masterBodyParts.join("\n");
-
-// Sheet outputs for your 12 columns (store in Google Sheets columns)
-const sheet_out = {
-  youtube_long: [
-    `Title: ${asString(youtubeLong.title)}`,
-    "",
-    asString(youtubeLong.script),
-    "",
-    "Description:",
-    asString(youtubeLong.description),
-    "",
-    "Chapters:",
-    Array.isArray(youtubeLong.chapters) ? youtubeLong.chapters.map(c => `${asString(c.t)} ${asString(c.label)}`).join(" | ") : "",
-  ].join("\n").trim(),
-
-  youtube_short: [
-    `Title: ${asString(youtubeShort.title)}`,
-    "",
-    asString(youtubeShort.script),
-    "",
-    `On-screen: ${Array.isArray(youtubeShort.on_screen_beats) ? youtubeShort.on_screen_beats.join(" | ") : ""}`,
-    "",
-    `Hashtags: ${Array.isArray(youtubeShort.hashtags) ? youtubeShort.hashtags.join(" ") : ""}`,
-  ].join("\n").trim(),
-
-  instagram_reel: [
-    `Hook: ${asString(instagramReel.hook_text)}`,
-    "",
-    renderReelShots(instagramReel.shots),
-    "",
-    asString(instagramReel.caption_hinglish),
-    "",
-    `Hashtags: ${Array.isArray(instagramReel.hashtags) ? instagramReel.hashtags.join(" ") : ""}`,
-  ].join("\n").trim(),
-
-  instagram_post: [
-    asString(instagramPost.caption_hinglish),
-    "",
-    `Hashtags: ${Array.isArray(instagramPost.hashtags) ? instagramPost.hashtags.join(" ") : ""}`,
-  ].join("\n").trim(),
-
-  instagram_carousel: renderCarouselText(instagramCarousel),
-
-  facebook_post: [
-    asString(facebookPost.text),
-    "",
-    `CTA: ${asString(facebookPost.cta_line)}`,
-  ].join("\n").trim(),
-
-  thread_post: asString(threadsPost.text),
-
-  twitter_post: asString(twitterPost.text),
-
-  twitter_thread: joinTweetThread(twitterThread),
-
-  linkedin_post: [
-    asString(linkedinPost.text),
-    "",
-    `CTA: ${asString(linkedinPost.cta_line)}`,
-  ].join("\n").trim(),
-
-  linkedin_article: [
-    `Title: ${asString(linkedinArticle.title)}`,
-    "",
-    asString(linkedinArticle.body),
-    "",
-    `Hashtags: ${Array.isArray(linkedinArticle.hashtags) ? linkedinArticle.hashtags.join(" ") : ""}`,
-  ].join("\n").trim(),
-
-  blog_post: [
-    `Title: ${asString(blog.title)}`,
-    "",
-    asString(blog.html_body),
-    "",
-    `Tags: ${Array.isArray(blog.tags) ? blog.tags.join(", ") : ""}`,
-  ].join("\n").trim(),
-};
-
-// -------------------- Return ONE item (master) --------------------
-return [
-  {
-    json: {
-      ok: true,
-      payload,
-      sheet_out,
-      doc_title,
-      doc_body,
-      validation,
-    },
-  },
-];
-```
-
-## n8n Code Node: Explode Docs
-
-This is the code used in the "Code node to explode docs" node. It takes the `docs` array generated by the previous node and splits it into individual items, so they can be processed one by one (e.g. creating separate Google Docs).
-
-```javascript
-/**
- * Explode docs[] into separate n8n items
- * Input: $json.docs is an array [{doc_type,title,body}, ...]
- * Output: each item = one doc job
- */
-
-function asString(x) {
-  return typeof x === "string" ? x : (x == null ? "" : String(x));
-}
-
-function joinTags(arr) {
-  if (!Array.isArray(arr)) return "";
-  return arr.map(t => asString(t).trim()).filter(Boolean).join(", ");
-}
-
-function joinHashtags(arr) {
-  if (!Array.isArray(arr)) return "";
-  return arr
-    .map(t => asString(t).trim())
-    .filter(Boolean)
-    .map(t => (t.startsWith("#") ? t : `#${t}`))
-    .join(" ");
-}
-
-function mdBullet(arr) {
-  if (!Array.isArray(arr) || !arr.length) return "";
-  return arr.map(x => `- ${asString(x)}`).join("\n");
-}
-
-function renderCarouselText(carousel) {
-  const cover = carousel?.cover || {};
-  const slides = Array.isArray(carousel?.slides) ? carousel.slides : [];
-  const design = carousel?.design || {};
-  const slideLines = slides.map(s => {
-    const no = s.slide_no ?? "";
-    const title = asString(s.title);
-    const body = asString(s.body);
-    const osc = asString(s.on_screen_caption);
-    return [
-      `Slide ${no}: ${title}`.trim(),
-      body,
-      osc ? `On-screen: ${osc}` : "",
-      ""
-    ].filter(Boolean).join("\n");
-  }).join("\n");
-
-  return [
-    `Cover Headline: ${asString(cover.headline)}`,
-    `Cover Subheadline: ${asString(cover.subheadline)}`,
-    `Cover Badge: ${asString(cover.badge)}`,
-    "",
-    "Slides:",
-    slideLines,
-    "",
-    "Design:",
-    `Format: ${asString(design.format)}`,
-    `Style: ${asString(design.style)}`,
-    `Colors: ${design.colors ? JSON.stringify(design.colors) : ""}`,
-    `Fonts: ${Array.isArray(design.font_suggestions) ? design.font_suggestions.join(", ") : ""}`,
-    `Layout Rules: ${Array.isArray(design.layout_rules) ? design.layout_rules.join(" | ") : ""}`,
-  ].join("\n");
-}
-
-function renderReelShots(shots) {
-  if (!Array.isArray(shots) || !shots.length) return "";
-  return shots.map((s, i) => {
-    return [
-      `SHOT ${i + 1} (${asString(s.t_start)} - ${asString(s.t_end)})`,
-      `Visual: ${asString(s.visual)}`,
-      `On-screen: ${asString(s.on_screen_text)}`,
-      `VO: ${asString(s.voiceover_hinglish || s.voiceover)}`,
-      s.sfx ? `SFX: ${asString(s.sfx)}` : "",
-      ""
-    ].filter(Boolean).join("\n");
-  }).join("\n");
-}
-
-function renderYTChapters(chapters) {
-  if (!Array.isArray(chapters) || !chapters.length) return "";
-  return chapters.map(c => `${asString(c.t)} — ${asString(c.label)}`).join("\n");
-}
-
-function htmlOrText(x) {
-  // keep html as-is; otherwise string
-  return asString(x);
-}
-
-function safeFile(name) {
-  return String(name || "Untitled")
-    .replace(/[\/\\?%*:|"<>]/g, "-")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function buildDoc(type, title, body) {
-  return {
-    doc_type: type,
-    title: safeFile(title),
-    body: asString(body),
-  };
-}
-
-let payload = $('n8n Code Node: Parse + Flatten Multi-Platform JSON Payload').first().json.payload;
-
-
-
-// -------------------- Extract Parts --------------------
-const meta = payload.meta || {};
-const youtubeLong = payload.youtube?.long || {};
-const youtubeShort = payload.youtube?.short || {};
-const instagramReel = payload.instagram?.reel || {};
-const instagramPost = payload.instagram?.post || {};
-const instagramCarousel = payload.instagram?.carousel || {};
-const facebookPost = payload.facebook?.post || {};
-const linkedinPost = payload.linkedin?.post || {};
-const linkedinArticle = payload.linkedin?.article || {};
-const blog = payload.blog || {};
-const twitterPost = payload.twitter?.post || {};
-const twitterThread = payload.twitter?.thread || {};
-const threadsPost = payload.threads?.post || {};
-const assets = payload.assets || {};
-const validation = payload.validation || {};
-const topicSafe = safeFile(meta.topic || "Automation Content");
-const dayLabel = asString(meta.date_label || "");
-const titlePrefix = safeFile(`${dayLabel ? dayLabel + " - " : ""}${topicSafe}`);
-
-const docs = [];
-
-
-// Individual docs (easy to publish/copy)
-docs.push(buildDoc("YT_LONG", `${titlePrefix} - YouTube Long`, `${asString(youtubeLong.title)}\n\n${asString(youtubeLong.description)}\n\nChapters:\n${renderYTChapters(youtubeLong.chapters)}\n\nTags:\n${joinTags(youtubeLong.tags)}\n\nPinned:\n${asString(youtubeLong.pinned_comment)}`));
-docs.push(buildDoc("YT_SHORT", `${titlePrefix} - YouTube Short`, `${asString(youtubeShort.title)}\n\nOn-screen:\n${asString(youtubeShort.on_screen_text)}\n\nVoiceover:\n${asString(youtubeShort.voiceover)}\n\nShots:\n${renderReelShots(youtubeShort.shots)}\n\nDesc:\n${asString(youtubeShort.description)}\n\nHashtags:\n${joinHashtags(youtubeShort.hashtags)}`));
-docs.push(buildDoc("IG_REEL", `${titlePrefix} - IG Reel`, `Hook:\n${asString(instagramReel.hook_text)}\n\nCaption:\n${asString(instagramReel.caption_hinglish)}\n\nShots:\n${renderReelShots(instagramReel.shots)}\n\nHashtags:\n${joinHashtags(instagramReel.hashtags)}\n\nCTA:\n${asString(instagramReel.cta_line)}`));
-docs.push(buildDoc("IG_POST", `${titlePrefix} - IG Post`, `${asString(instagramPost.caption_hinglish)}\n\nHashtags:\n${joinHashtags(instagramPost.hashtags)}\n\nCTA:\n${asString(instagramPost.cta_line)}`));
-docs.push(buildDoc("IG_CAROUSEL", `${titlePrefix} - IG Carousel`, renderCarouselText(instagramCarousel)));
-docs.push(buildDoc("FB_POST", `${titlePrefix} - Facebook Post`, `${asString(facebookPost.text)}\n\nCTA:\n${asString(facebookPost.cta_line)}\n\nHashtags:\n${joinHashtags(facebookPost.hashtags)}`));
-docs.push(buildDoc("LI_POST", `${titlePrefix} - LinkedIn Post`, `${asString(linkedinPost.text)}\n\nCTA:\n${asString(linkedinPost.cta_line)}\n\nHashtags:\n${joinHashtags(linkedinPost.hashtags)}`));
-
-const liArticleBody = [
-  `${asString(linkedinArticle.title)}`,
-  "",
-  `Hook:\n${asString(linkedinArticle.hook)}`,
-  "",
-  `TL;DR:\n${asString(linkedinArticle.tldr)}`,
-  "",
-  ...(Array.isArray(linkedinArticle.sections) ? linkedinArticle.sections.flatMap(s => [`## ${asString(s.h2)}`, asString(s.body), ""]) : []),
-  `CTA:\n${asString(linkedinArticle.cta)}`,
-].filter(Boolean).join("\n");
-
-docs.push(buildDoc("LI_ARTICLE", `${titlePrefix} - LinkedIn Article`, liArticleBody));
-
-const blogBody = [
-  `${asString(blog.title)}`,
-  "",
-  `TL;DR:\n${asString(blog.tldr)}`,
-  "",
-  "HTML BODY:",
-  htmlOrText(blog.html_body),
-  "",
-  `Tags: ${joinTags(blog.tags)}`,
-  "",
-  "SEO:",
-  `Meta title: ${asString(blog.seo?.meta_title)}`,
-  `Meta desc: ${asString(blog.seo?.meta_description)}`,
-  `Keywords: ${Array.isArray(blog.seo?.keywords) ? blog.seo.keywords.join(", ") : ""}`,
-  "",
-  `Image prompt: ${asString(blog.image_prompt)}`,
-].filter(Boolean).join("\n");
-
-docs.push(buildDoc("BLOG", `${titlePrefix} - Blog`, blogBody));
-
-const xThreadBody = [
-  `Hook tweet:\n${asString(twitterThread.hook_tweet)}`,
-  "",
-  "Tweets:",
-  ...(Array.isArray(twitterThread.tweets) ? twitterThread.tweets.map((t, i) => `${i + 1}. ${asString(t)}`) : []),
-].join("\n");
-
-docs.push(buildDoc("X_POST", `${titlePrefix} - X Post`, asString(twitterPost.text)));
-docs.push(buildDoc("X_THREAD", `${titlePrefix} - X Thread`, xThreadBody));
-docs.push(buildDoc("THREADS_POST", `${titlePrefix} - Threads Post`, asString(threadsPost.text)));
-
-
-if (!Array.isArray(docs) || docs.length === 0) {
-  throw new Error("docs[] missing or empty. Ensure previous node returns { docs: [...] }");
-}
-
-// carry useful context forward (optional)
-const topic = $json.sheet?.topic || $json.payload?.meta?.topic || $json.topic || "";
-const rowId = $json.rowId || $json.sheet_row_id || "";
-const targetFolderId = $json.targetFolderId || $json.drive_folder_id || $json.folderId || "";
-
-return docs.map(d => ({
-  json: {
-    // doc job fields (used by Google Docs nodes)
-    doc_type: d.doc_type,
-    title: d.title,
-    body: d.body,
-
-    // context (optional)
-    topic,
-    rowId,
-    targetFolderId,
-  },
-}));
-```
-
-## n8n Google Docs Node Configuration
-
-These configurations are used in the Google Docs nodes to dynamically create documents and insert content.
-
-### Create Google Doc (Docs Node)
-**Title Expression:**
-```javascript
-{{ { "title": $node["n8n Code Node: Parse + Flatten Multi-Platform JSON Payload"].json.doc_title } }}
-```
-
-### Insert Content (batchUpdate) (HTTP Request Node)
-**JSON Body:**
-```javascript
-{{
-JSON.stringify({
-  "requests": [
-    {
-      "insertText": {
-        "location": { "index": 1 },
-        "text": $node["n8n Code Node: Parse + Flatten Multi-Platform JSON Payload"].json.doc_body
-      }
-    }
-  ]
-})
-}}
-```
-
-### Create Google Docs (Master Doc) (Docs Node)
-**Title Expression:**
-```json
-{
-  "title": "{{$json.title}}"
-}
-```
-
-### Insert Content (batchUpdate) for docs (HTTP Request Node)
-**JSON Body:**
-```javascript
-{{
-JSON.stringify({
-  "requests": [
-    {
-      "insertText": {
-        "location": { "index": 1 },
-        "text": $('Code node to explode docs').item.json.body
-      }
-    }
-  ]
-})
-}}
-```
+- Website: [avnishyadav.com](https://avnishyadav.com)
+- YouTube: [@avnishcodes](https://www.youtube.com/@avnishcodes)
+- LinkedIn: [avnishyadav25](https://in.linkedin.com/in/avnishyadav25)
+- GitHub: [avnishyadav25](https://github.com/avnishyadav25)
